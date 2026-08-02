@@ -11,6 +11,13 @@
             "VivereStage\\LaravelApiFeeds\\": "src/"
         }
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "VivereStage\\LaravelApiFeeds\\Providers\\VivereApiFeedsProvider"
+            ]
+        }
+    },
     "authors": [
         {
             "name": "mfelix96"

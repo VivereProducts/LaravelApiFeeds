@@ -1,0 +1,10 @@
+<?php
+
+namespace {{ namespace }};
+
+use VivereStage\LaravelApiFeeds\Eloquent\Model;
+
+class {{ class }} extends Model
+{
+    //
+}
