@@ -84,7 +84,7 @@ abstract class Model extends EloquentModel
             return $this->endpoint;
         }
 
-        return (string) str(class_basename($this))->kebab();
+        return (string) str(class_basename($this))->kebab()->plural();
     }
 
     public function save(array $options = [])
