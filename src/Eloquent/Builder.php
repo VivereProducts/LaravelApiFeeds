@@ -58,11 +58,15 @@ class Builder
             $value = json_encode($value);
         }
         if ($value instanceof DateTimeInterface) {
-            $value = $value->format(DateTime::ATOM);
+            $timezone = $value->getTimezone()->getName();
+            $value = $value->format('Y-m-d H:i:s');
         }
 
         $this->query['filter'][$column]['operator'] = $operator;
         $this->query['filter'][$column]['value'] = $value;
+        if (!empty($timezone)) {
+            $this->query['filter'][$column]['timezone'] = $timezone;
+        }
 
         return $this;
     }
@@ -72,6 +76,49 @@ class Builder
         foreach ($whereArray as $thisWhere) {
             $this->where(...$thisWhere);
         }
+
+        return $this;
+    }
+
+    public function sortBy(string $column, string $direction = 'asc'): self
+    {
+        if (!isset($this->query['sortBy'])) {
+            $this->query['sortBy'] = [];
+        }
+
+        $direction = in_array($direction, ['asc', 'desc']) ? $direction : 'asc';
+
+        $this->query['sortBy'][] = [
+            'column' => $column,
+            'direction' => $direction,
+        ];
+
+        return $this;
+    }
+
+    public function unsetSortBy(): self
+    {
+        unset($this->query['sortBy']);
+
+        return $this;
+    }
+
+    public function withNeighbours(bool $wrap = false): self
+    {
+        $this->query['withNeighbours'] = 1;
+        if ($wrap == true) {
+            $this->query['wrapNeighbours'] = 1;
+        }
+
+        return $this;
+    }
+
+    public function withoutNeighbours(): self
+    {
+        unset(
+            $this->query['withNeighbours'],
+            $this->query['wrapNeighbours'],
+        );
 
         return $this;
     }

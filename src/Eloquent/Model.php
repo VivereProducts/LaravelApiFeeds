@@ -4,6 +4,7 @@ namespace VivereStage\LaravelApiFeeds\Eloquent;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use LogicException;
 use Nette\NotImplementedException;
 
@@ -32,12 +33,21 @@ abstract class Model extends EloquentModel
 
     public function __construct(array $attributes = [])
     {
-        foreach ($this->related as $relationName => $relationType) {
+        foreach ($this->getRelatedSchemas() as $relationName => $relationType) {
+            $relationData = $attributes[$relationName]
+                ?? $attributes[Str::snake($relationName)]
+                ?? $attributes[Str::camel($relationName)]
+                ?? null;
+
+            if (empty($relationData)) {
+                unset($attributes[$relationName]);
+                continue;
+            }
+
             /**
              * @var self $relationInstance
              */
             $relationInstance = new $relationType;
-            $relationData = $attributes[$relationName] ?? null;
 
             if (!empty($relationData[$relationInstance->getKeyName()])) {
                 // Single relation
@@ -95,5 +105,18 @@ abstract class Model extends EloquentModel
     public function delete()
     {
         throw new LogicException('API models are read-only.');
+    }
+
+    protected function getRelatedSchemas()
+    {
+        return [
+            'previousElement' => static::class,
+            'nextElement' => static::class
+        ] + $this->related;
+    }
+
+    public static function query(): Builder
+    {
+        return (new static)->newQuery();
     }
 }
