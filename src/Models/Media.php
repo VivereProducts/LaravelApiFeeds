@@ -3,10 +3,14 @@
 namespace VivereStage\LaravelApiFeeds\Models;
 
 use Illuminate\Support\Arr;
+use VivereStage\LaravelApiFeeds\Concerns\HasTranslations;
+use VivereStage\LaravelApiFeeds\Contracts\Translatable;
 use VivereStage\LaravelApiFeeds\Eloquent\Model;
 
-class Media extends Model
+class Media extends Model implements Translatable
 {
+    use HasTranslations;
+
     public function getUrl(?string $conversion = null, ?string $type = null)
     {
         if (empty($conversion)) {
@@ -29,5 +33,10 @@ class Media extends Model
         }
 
         return $file['url'] ?? null;
+    }
+
+    public function translatableAttributes(): array
+    {
+        return ['title'];
     }
 }
