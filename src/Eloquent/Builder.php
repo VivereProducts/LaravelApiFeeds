@@ -80,6 +80,13 @@ class Builder
         return $this;
     }
 
+    public function qualify(string $column, mixed $value): self
+    {
+        $this->query['qualify'][$column] = $value;
+
+        return $this;
+    }
+
     public function sortBy(string $column, string $direction = 'asc'): self
     {
         if (!isset($this->query['sortBy'])) {
