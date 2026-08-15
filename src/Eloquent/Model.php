@@ -77,7 +77,7 @@ abstract class Model extends EloquentModel
     public function resolveRouteBinding($value, $field = null)
     {
         return $this->newQuery()
-            ->where($field ?? $this->getKey(), $value)
+            ->where($field ?? $this->getKeyName(), $value)
             ->firstOrFail();
     }
 

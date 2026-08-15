@@ -164,7 +164,7 @@ class Builder
     public function firstOrFail()
     {
         $entry = $this->first();
-        if (empty($first)) {
+        if (empty($entry)) {
             throw new ModelNotFoundException(
                 'No results for ' . get_class($this) . '.'
             );
