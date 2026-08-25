@@ -5,7 +5,9 @@ namespace VivereStage\LaravelApiFeeds\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Cache\Repository;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
@@ -80,9 +82,34 @@ class ApiConnection
         }
     }
 
-    public function get(string $endpoint, array $query = [])
+    public function get(string $endpoint, array $query = [], bool $fresh = false)
     {
-        return $this->getData($endpoint, $query);
+        $cacheTags = [
+            config('vivere-api-feeds.url'),
+            config('vivere-api-feeds.app_id'),
+            config('vivere-api-feeds.app_secret'),
+            $endpoint,
+            $endpoint . '?' . http_build_query($query)
+        ];
+
+        /** @var Repository $repository */
+        $key = 'content';
+        if (Cache::supportsTags()) {
+            $repository = Cache::tags($cacheTags);
+        } else {
+            $repository = Cache::store();
+            $key = md5(json_encode($cacheTags)) . '.' . $key;
+        }
+
+        if ($fresh || ! config('vivere-api-feeds.cache_enabled', true)) {
+            $repository->forget($key);
+        }
+
+        return $repository->remember(
+            $key, config('vivere-api-feeds.cache_ttl', 60), function () use ($endpoint, $query) {
+                return $this->getData($endpoint, $query);
+            }
+        );
     }
 
     protected function getData(string $endpoint, array $query = [], int $attempt = 1)

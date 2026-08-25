@@ -18,6 +18,8 @@ class Builder
 
     protected array $query = [];
 
+    protected bool $fresh = false;
+
     public function __construct(Model $model)
     {
         $this->connection = new ApiConnection;
@@ -144,9 +146,16 @@ class Builder
         return $this;
     }
 
+    public function fresh(bool $fresh): self
+    {
+        $this->fresh = $fresh;
+
+        return $this;
+    }
+
     public function get(): LengthAwarePaginator
     {
-        $data = $this->connection->get($this->model->getEndpoint(), $this->query);
+        $data = $this->connection->get($this->model->getEndpoint(), $this->query, $this->fresh);
         $items = Collection::wrap($data['data'])->mapInto(get_class($this->model));
         return new LengthAwarePaginator(
             $items,

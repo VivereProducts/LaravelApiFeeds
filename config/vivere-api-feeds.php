@@ -9,4 +9,6 @@ return [
     'token_ttl' => 18000,
     'log_channel' => 'daily',
     'verify_ssl' => env('VIVERE_API_FEEDS_SSL', true),
+    'cache_enabled' => env('VIVERE_API_FEEDS_CACHE_ENABLED', true),
+    'cache_ttl' => env('VIVERE_API_FEEDS_CACHE_TTL', 60),
 ];
